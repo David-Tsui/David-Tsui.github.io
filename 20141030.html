@@ -1,41 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+	<head>
 	<meta charset="utf-8">
 	<title>花花的個人網站</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 
 	<script type="text/javascript">
-	$(document).ready(function(){
-		$("#GO").click(function(){
+		$(document).ready(function(){
+			nav_to_white();
+
+			$("#GO").click(function(){
+				
+
+			});
+
+			$("#NO").click(function(){
+
+
+			});
+
+			function nav_to_white(){										// 讓上方的navbar的元素有白色跑馬燈特效
+				var head_arr = ["#home","#about","#contact","#login","#none"];
+				var head_color = ["#F87274","#F0A01C","#F1EE8F","#8AE194","#5B81E9"];
+				for (i = 0 ; i < head_arr.length ; i++){
+					$(head_arr[i]).css('color',head_color[i]);
+				}
+				function auto_count(){										// 用來控制變色的index的anonymous function，本身記錄index
+					var count = 0;
+					return function(){
+						if (count >= 5)
+							count = 0;
+						return count++;
+					};
+				}
+				var set_count = auto_count();								// 為anonymous function取名
+				setInterval(function(){
+					var temp = nav_assign_white(set_count());				// 記錄這次變色元素的index
+					var pause_timer = setInterval(function(){
+						nav_restore_color(temp);							// 還原該元素的色彩
+						clearInterval(pause_timer);							
+					},1500);
+				},1500);
+			}
 			
-
+			function nav_assign_white(element){								// 把元素顏色變白色
+				var head_arr = ["#home","#about","#contact","#login","#none"]
+				$(head_arr[element]).css('color',"white");
+				return element;
+			}
+			
+			function nav_restore_color(element){							// 讓上方的已變色的navigator元素變回原色的函式
+				var head_arr = ["#home","#about","#contact","#login","#none"];
+				var head_color = ["#F87274","#F0A01C","#F1EE8F","#8AE194","#5B81E9"];
+				$(head_arr[element]).css('color',head_color[element]);
+			}
 		});
-
-		$("#NO").click(function(){
-
-
-		});
-	});
 
 	</script>
-</head>
+	</head>
 	
-<style>
+	<style>
 	
-	body{
-		background-color: #ccc;
-		font-family: Arial, "文泉驛正黑", "WenQuanYi Zen Hei", "黑體-繁", "Heiti TC", "儷黑 Pro", "LiHei Pro", "微軟正黑體", "Microsoft JhengHei", "標楷體", DFKai-SB, sans-serif;
-	}
+		body{
+			background-color: #CCC;
+			font-family: Arial, "文泉驛正黑", "WenQuanYi Zen Hei", "黑體-繁", "Heiti TC", "儷黑 Pro", "LiHei Pro", "微軟正黑體", "Microsoft JhengHei", "標楷體", DFKai-SB, sans-serif;
+		}
 
-	#push{
-		height: 100px;
-	}
+		#push{
+			height: 100px;
+		}
 
-</style>
+	</style>
 
 <body>
 	<nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
@@ -66,6 +105,9 @@
                     <li>
                     	<a href="http://speechlab.cs.nchu.edu.tw/nchu-tw-pinyin/" id="login"><span class="glyphicon glyphicon-user"></span> 作品欣賞</a>
                     </li>
+                    <li>
+                    	<a href="#" id="none"><span class="glyphicon glyphicon-heart"></span> 無功能</a>
+                    </li>
 				</ul>
 			</div>
 		</div>
@@ -73,7 +115,9 @@
 	<div id="push"></div>
 	<div class"container">
 		<div class="row">
-			<div class="col-xs-12 col-sm-4 col-md-4"></div>
+			<div class="col-xs-12 col-sm-4 col-md-4" style="text-align: center">
+				<iframe src="//www.youtube.com/embed/0lhfgaZ-gLY" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+			</div>
 			<div class="col-xs-12 col-sm-4 col-md-4">
 				<div class="panel panel-default" id="tutor_panel" style="border-radius: 5px">
 					<div class="panel-heading" style="font-size: 16px; font-family: '微軟正黑體'">初來乍到?</div>
@@ -86,7 +130,9 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-xs-12 col-sm-4 col-md-4"></div>
+			<div class="col-xs-12 col-sm-4 col-md-4" style="text-align: center">
+				<iframe src="//www.youtube.com/embed/J8RJFTgZAak" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+			</div>
 		</div>
 		<div class="row" style="font-size: 20px; text-align: center">
 			<div class="col-xs-12 col-sm-4 col-md-4">
@@ -97,10 +143,10 @@
 					<tr>
 						<td>身高</td>
 						<td>177 cm</td>
-					</tr>
+					</tr>s
 					<tr>
 						<td>體重</td>
-						<td>71 kg</td>					
+						<td>72 kg</td>					
 					</tr>
 					<tr>
 						<td>年齡</td>
@@ -119,13 +165,12 @@
 				<br><br>
 				<p><span class="glyphicon glyphicon-remove-sign"></span> 孤舟簑笠翁，喵喵喵喵喵 <span class="glyphicon glyphicon-remove-sign"></span></p>
 
-				<img src="http://i.imgur.com/8479yhS.jpg" style="width: 80%"/>
+				<img src="http://i.imgur.com/8479yhS.jpg" class="img-circle" alt="Circular Image" style="width: 80%"/>
 			</div>
 		</div>
 	</div>	
 
-	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 	
+    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 </body>
 </html>
