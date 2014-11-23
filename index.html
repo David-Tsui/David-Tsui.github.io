@@ -67,7 +67,8 @@
 	
 		body{
 			background-color: #CCC;
-			font-family: Arial, "文泉驛正黑", "WenQuanYi Zen Hei", "黑體-繁", "Heiti TC", "儷黑 Pro", "LiHei Pro", "微軟正黑體", "Microsoft JhengHei", "標楷體", DFKai-SB, sans-serif;
+			font-family: Arial, "文泉驛正黑", "WenQuanYi Zen Hei", "微軟正黑體", "Microsoft JhengHei", "標楷體", DFKai-SB, 
+						 sans-serif;
 		}
 
 		#push{
@@ -76,108 +77,93 @@
 
 	</style>
 
-<body>
-	<nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#"><strong>國防布</strong></a>
-			</div>
-			<div id="navbarCollapse" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav">
-                    <li>
-                    	<a href="#home" id="home"><span class="glyphicon glyphicon-home"></span> 首頁</a>
-                    </li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li>
-						<a href="#about" id="about"><span class="glyphicon glyphicon-info-sign"></span> 關於我</a>
-					</li>
-                 
-                    <li>
-                    	<a href="#contact" id="contact"><span class="glyphicon glyphicon-envelope"></span> 聯絡我</a>
-                    </li>
-                    <li>
-                    	<a href="http://speechlab.cs.nchu.edu.tw/nchu-tw-pinyin/" id="login"><span class="glyphicon glyphicon-user"></span> 作品欣賞</a>
-                    </li>
-                    <li>
-                    	<a href="#" id="info"><span class="glyphicon glyphicon-heart"></span> 關於本站</a>
-                    </li>
-				</ul>
-			</div>
-		</div>
-	</nav>
-	<div id="push"></div>
-	<div class"container">
-		<div class="row" style="font-size: 20px; text-align: center">
-			<div class="col-xs-12 col-sm-12 col-md-12">
-				<iframe src='http://cdn.knightlab.com/libs/timeline/latest/embed/index.html?source=0AlyYgCDiO4aHdF9KMGdZZGU5U1oxWkxuM2pKdzlUZHc&font=Bevan-PotanoSans&maptype=toner&lang=en&height=650' width='100%' height='650' frameborder='0'></iframe>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-xs-12 col-sm-4 col-md-4" style="text-align: center">
-				<iframe src="//www.youtube.com/embed/0lhfgaZ-gLY" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
-			</div>
-			<div class="col-xs-12 col-sm-4 col-md-4">
-				<div class="panel panel-default" id="tutor_panel" style="border-radius: 5px">
-					<div class="panel-heading" style="font-size: 16px; font-family: '微軟正黑體'">初來乍到?</div>
-					<div class="panel-body" style="font-size: 12px; font-family: '微軟正黑體'">如果第一次使用，建議您點選按鈕進入簡易說明及教學</div>
-					<div class="panel-footer clearfix">
-						<div class="pull-right">
-							<div class="btn btn-primary" id="GO" style="font-size: 10px; font-family: '微軟正黑體'">馬上出發!</div>
-							<div class="btn btn-default" id="NO" style="font-size: 10px; font-family: '微軟正黑體'">下次再說!</div>
-						</div>
-					</div>
+	<body>
+		<nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#"><strong>國防布</strong></a>
+				</div>
+				<div id="navbarCollapse" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+	                    <li>
+	                    	<a href="index.html" id="home"><span class="glyphicon glyphicon-home"></span> 首頁</a>
+	                    </li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="about.html" id="about"><span class="glyphicon glyphicon-info-sign"></span> 關於我</a>
+						</li>
+	                 
+	                    <li>
+	                    	<a href="#contact" id="contact"><span class="glyphicon glyphicon-envelope"></span> 聯絡我</a>
+	                    </li>
+	                    <li>
+	                    	<a href="http://speechlab.cs.nchu.edu.tw/nchu-tw-pinyin/" id="login"><span class="glyphicon glyphicon-user"></span> 作品欣賞</a>
+	                    </li>
+	                    <li>
+	                    	<a href="#" id="info"><span class="glyphicon glyphicon-heart"></span> 關於本站</a>
+	                    </li>
+					</ul>
 				</div>
 			</div>
-			<div class="col-xs-12 col-sm-4 col-md-4" style="text-align: center">
-				<iframe src="//www.youtube.com/embed/J8RJFTgZAak" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+		</nav>
+		<div id="push"></div>
+
+		<div class="container">
+			<div class="row" style="text-align: center">
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<iframe src="//www.youtube.com/embed/0lhfgaZ-gLY" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<iframe src="//www.youtube.com/embed/QXjhOlc_Mqw" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<iframe src="//www.youtube.com/embed/J8RJFTgZAak" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+				</div>
 			</div>
-		</div>
+			
+			<div class="row" style="font-size: 20px; text-align: center">
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<br><br>
+					<p><span class="glyphicon glyphicon-leaf"></span> 但願人長久，千里共嬋娟 <span class="glyphicon glyphicon-leaf"></span></p>
+					<br>
+					<table class="table table-hover table-bordered" style="margin-left: 35px; width: 80%">
+						<tr>
+							<td>身高</td>
+							<td>177 cm</td>
+						</tr>
+						<tr>
+							<td>體重</td>
+							<td>72 kg</td>					
+						</tr>
+						<tr>
+							<td>年齡</td>
+							<td>21歲</td>
+						</tr>
+					</table>
+					<a href="https://www.facebook.com/profile.php?id=100000121665432"><button type="button" class="btn btn-primary">花花的FB</button></a>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<br><br>
+					<p><span class="glyphicon glyphicon-tint"></span> 松下問童子，言師採藥去 <span class="glyphicon glyphicon-tint"></span></p>
+					<br>
+					<img src="http://i.imgur.com/ctxbdTP.jpg" style="width: 80%"/>
+				</div>
+				<div class="col-xs-12 col-sm-4 col-md-4">
+					<br><br>
+					<p><span class="glyphicon glyphicon-remove-sign"></span> 孤舟簑笠翁，喵喵喵喵喵 <span class="glyphicon glyphicon-remove-sign"></span></p>
+
+					<img src="http://i.imgur.com/8479yhS.jpg" class="img-circle" alt="Circular Image" style="width: 80%"/>
+				</div>
+			</div>
+		</div>	
 		
-		<div class="row" style="font-size: 20px; text-align: center">
-			<div class="col-xs-12 col-sm-4 col-md-4">
-				<br><br>
-				<p><span class="glyphicon glyphicon-leaf"></span> 但願人長久，千里共嬋娟 <span class="glyphicon glyphicon-leaf"></span></p>
-				<br>
-				<table class="table table-hover table-bordered" style="margin-left: 35px; width: 80%">
-					<tr>
-						<td>身高</td>
-						<td>177 cm</td>
-					</tr>
-					<tr>
-						<td>體重</td>
-						<td>72 kg</td>					
-					</tr>
-					<tr>
-						<td>年齡</td>
-						<td>21歲</td>
-					</tr>
-				</table>
-				<a href="https://www.facebook.com/profile.php?id=100000121665432"><button type="button" class="btn btn-primary">花花的FB</button></a>
-			</div>
-			<div class="col-xs-12 col-sm-4 col-md-4">
-				<br><br>
-				<p><span class="glyphicon glyphicon-tint"></span> 松下問童子，言師採藥去 <span class="glyphicon glyphicon-tint"></span></p>
-				<br>
-				<img src="http://i.imgur.com/ctxbdTP.jpg" style="width: 80%"/>
-			</div>
-			<div class="col-xs-12 col-sm-4 col-md-4">
-				<br><br>
-				<p><span class="glyphicon glyphicon-remove-sign"></span> 孤舟簑笠翁，喵喵喵喵喵 <span class="glyphicon glyphicon-remove-sign"></span></p>
-
-				<img src="http://i.imgur.com/8479yhS.jpg" class="img-circle" alt="Circular Image" style="width: 80%"/>
-			</div>
-		</div>
-	</div>	
-
-	
-    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-</body>
+	    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+	</body>
 </html>
