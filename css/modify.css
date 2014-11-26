@@ -1,0 +1,45 @@
+*:before, *:after{
+	box-sizing: content-box;
+}
+
+.jqte_green_tool, .jqte_green_tool_label{
+	box-sizing: content-box;
+}
+
+.jqte_tool, .jqte_tool_label{
+	box-sizing: content-box;
+}
+
+.st_facebook_hcount{
+	box-sizing: content-box;
+}
+
+.stButton{
+	box-sizing: content-box;
+}
+
+.stMainServices{
+	box-sizing: content-box;
+}
+
+.stButton_gradient{
+	box-sizing: content-box;
+}
+
+.qrcode_generate{
+	box-sizing: content-box;
+}
+
+#qrcode{
+	box-sizing: content-box;
+}
+
+.ui.action.input{
+	box-sizing: content-box;
+}
+
+
+
+
+
+
