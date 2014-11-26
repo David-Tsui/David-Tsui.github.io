@@ -16,12 +16,16 @@
 			$("#all_black").click(function(){
 				$('#sheild').hide();
 				$('body').css('background-color','#000');
-				$p = $("<p id='cancel_black' style='color: #FFF; font-size: 28px; font-weight: bold; text-align: center; margin-top: 25%'>取消國防布</p>");
-				$('body').append($p);
+				$div = $("<div class='container'><div class='row' style='text-align: center'><div id='push'></div><div id='push'></div><div id='push'></div><div id='push'></div><div id='push'></div><div class='col-xs-12 col-sm-4 col-md-4'></div><div class='col-xs-12 col-sm-4 col-md-4'><button type='button' class='btn btn-default' id='cancel_black' style='color: #000; font-size: 20px'>取消國防布</button></div><div class='col-xs-12 col-sm-4 col-md-4'></div></div></div>");
+				$('body').append($div);
+
 				$("#cancel_black").on('click',function(){
 					$('#sheild').show();
 					$('body').css('background-color','#CCC');
-					$('body').remove($(this));
+					$("#cancel_black").remove();
+				}).on('mouseenter',function(){
+					
+					
 				});
 			});
 
