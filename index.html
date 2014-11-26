@@ -1,75 +1,187 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>David-tsui.github.io by David-Tsui</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	<meta charset="utf-8">
+	<title>花花的個人網站</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 
-  </head>
-  <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/David-Tsui">View On GitHub</a></li>
-        </nav>
-      </div><!-- end header -->
+	<script type="text/javascript">
+		$(document).ready(function(){
+			nav_to_white();
 
-    <div class="wrapper">
+			$("#all_black").click(function(){
+				$('#sheild').hide();
+				$('body').css('background-color','#000');
+				$div = $("<div class='container'><div class='row' style='text-align: center'><div id='push'></div><div id='push'></div><div id='push'></div><div id='push'></div><div id='push'></div><div class='col-xs-12 col-sm-4 col-md-4'></div><div class='col-xs-12 col-sm-4 col-md-4'><button type='button' class='btn btn-default' id='cancel_black' style='color: #000; font-size: 20px'>取消國防布</button></div><div class='col-xs-12 col-sm-4 col-md-4'></div></div></div>");
+				$('body').append($div);
 
-      <section>
-        <div id="title">
-          <h1>David-tsui.github.io</h1>
-          <p>helloworld~</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/David-Tsui">David-Tsui</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
+				$("#cancel_black").on('click',function(){
+					$('#sheild').show();
+					$('body').css('background-color','#CCC');
+					$div.remove();
+				}).on('mouseenter',function(){
+					
+					
+				});
+			});
 
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+			$("#GO").click(function(){
+				
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+			});
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+			$("#NO").click(function(){
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+			});
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+			function nav_to_white(){										// 讓上方的navbar的元素有白色跑馬燈特效
+				var head_arr = ["#home","#about","#contact","#login","#info"];
+				var head_color = ["#F87274","#F0A01C","#F1EE8F","#8AE194","#5B81E9"];
+				for (i = 0 ; i < head_arr.length ; i++){
+					$(head_arr[i]).css('color',head_color[i]);
+				}
+				function auto_count(){										// 用來控制變色的index的anonymous function，本身記錄index
+					var count = 0;
+					return function(){
+						if (count >= 5)
+							count = 0;
+						return count++;
+					};
+				}
+				var set_count = auto_count();								// 為anonymous function取名
+				setInterval(function(){
+					var temp = nav_assign_white(set_count());				// 記錄這次變色元素的index
+					var pause_timer = setInterval(function(){
+						nav_restore_color(temp);							// 還原該元素的色彩
+						clearInterval(pause_timer);							
+					},1500);
+				},1500);
+			}
+			
+			function nav_assign_white(element){								// 把元素顏色變白色
+				var head_arr = ["#home","#about","#contact","#login","#info"]
+				$(head_arr[element]).css('color',"white");
+				return element;
+			}
+			
+			function nav_restore_color(element){							// 讓上方的已變色的navigator元素變回原色的函式
+				var head_arr = ["#home","#about","#contact","#login","#info"];
+				var head_color = ["#F87274","#F0A01C","#F1EE8F","#8AE194","#5B81E9"];
+				$(head_arr[element]).css('color',head_color[element]);
+			}
+		});
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+	</script>
+	</head>
+	
+	<style>
+	
+		body{
+			background-color: #CCC;
+			font-family: Arial, "文泉驛正黑", "WenQuanYi Zen Hei", "微軟正黑體", "Microsoft JhengHei", "標楷體", DFKai-SB, 
+						 sans-serif;
+		}
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+		#push{
+			height: 100px;
+		}
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+	</style>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+	<body>
+		<div id="sheild">
+			<nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+				<div class="container">
+					<div class="navbar-header">
+						<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a id="all_black" class="navbar-brand" href="#"><strong>國防布</strong></a>
+					</div>
+					<div id="navbarCollapse" class="collapse navbar-collapse">
+						<ul class="nav navbar-nav">
+		                    <li>
+		                    	<a href="index.html" id="home"><span class="glyphicon glyphicon-home"></span> 首頁</a>
+		                    </li>
+						</ul>
+						<ul class="nav navbar-nav navbar-right">
+							<li>
+								<a href="about.html" id="about"><span class="glyphicon glyphicon-info-sign"></span> 關於我</a>
+							</li>
+		                 
+		                    <li>
+		                    	<a href="#contact" id="contact"><span class="glyphicon glyphicon-envelope"></span> 聯絡我</a>
+		                    </li>
+		                    <li>
+		                    	<a href="http://speechlab.cs.nchu.edu.tw/nchu-tw-pinyin/" id="login"><span class="glyphicon glyphicon-user"></span> 作品欣賞</a>
+		                    </li>
+		                    <li>
+		                    	<a href="#" id="info"><span class="glyphicon glyphicon-heart"></span> 關於本站</a>
+		                    </li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+			<div id="push"></div>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+			<div class="container">
+				<div class="row" style="text-align: center">
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<iframe src="//www.youtube.com/embed/0lhfgaZ-gLY" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<iframe src="//www.youtube.com/embed/QXjhOlc_Mqw" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<iframe src="//www.youtube.com/embed/J8RJFTgZAak" style="width: 80%; height: 280px;" frameborder="0" allowfullscreen></iframe>
+					</div>
+				</div>
+				
+				<div class="row" style="font-size: 20px; text-align: center">
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<br><br>
+						<p><span class="glyphicon glyphicon-leaf"></span> 但願人長久，千里共嬋娟 <span class="glyphicon glyphicon-leaf"></span></p>
+						<br>
+						<table class="table table-hover table-bordered" style="margin-left: 35px; width: 80%">
+							<tr>
+								<td>身高</td>
+								<td>177 cm</td>
+							</tr>
+							<tr>
+								<td>體重</td>
+								<td>72 kg</td>					
+							</tr>
+							<tr>
+								<td>年齡</td>
+								<td>21歲</td>
+							</tr>
+						</table>
+						<a href="https://www.facebook.com/profile.php?id=100000121665432"><button type="button" class="btn btn-primary">花花的FB</button></a>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<br><br>
+						<p><span class="glyphicon glyphicon-tint"></span> 松下問童子，言師採藥去 <span class="glyphicon glyphicon-tint"></span></p>
+						<br>
+						<img src="http://i.imgur.com/ctxbdTP.jpg" style="width: 80%"/>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<br><br>
+						<p><span class="glyphicon glyphicon-remove-sign"></span> 孤舟簑笠翁，喵喵喵喵喵 <span class="glyphicon glyphicon-remove-sign"></span></p>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
-  </body>
+						<img src="http://i.imgur.com/8479yhS.jpg" class="img-circle" alt="Circular Image" style="width: 80%"/>
+					</div>
+				</div>
+			</div>	
+		</div>
+		
+	    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+	</body>
 </html>

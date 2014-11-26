@@ -1,0 +1,951 @@
+
+/*
+Author：4101056044 崔家華 (資工系二年級) 
+Due Date：June 20, 2014
+Purpose：make a SIC assembeler
+*/
+
+//***********************************************************************************************************************************************************//
+// My structure : two hash tables with linked list structure ( static opcode hash table, dynamic symbol hash table; the datas in former insert when the  
+//                program begins, the latter insert datas when checking whether the symbol has existed.
+// 
+// -> Why use Hash Table? Because the effciency of searching is constant time, that is, the Time Complexity is O(1), better than all the other searching method. 
+// -> Why use linked list to approach collision? Because it is more efficient to deal with the collision with linked list than linear search insertion  
+// -> two hash function : Opcode hash table : (Sum of Ascii code of opcode characters modulo(%,mod) a prime number), where I pick 199.  
+//                        Symbol hash table : (Total length of initialized length of the Symbol hash table modulo(%,mod) Sum of Ascii code of opcode characters )
+// -> three significant global char arrays : Label[], Opcode[], Operand[], which store the data read from the original file 
+// -> algorithm : the algorithm is in the text book, I just implement it.
+// -> two individual method for calculating head and text record.
+//***********************************************************************************************************************************************************//
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
+#include <string.h>
+#include <string>
+using namespace std;
+#define MAX_Buffer 128
+#define MAX_Hash_OP 200
+#define MAX_Hash_SYM 400
+#define Prime_Hash 199
+
+int LOCCTR;                               // record the address of this(executing now) instruction 
+int Program_Counter;                      // record the address of next instruction 
+int Start_Address;				          // record the start address of the SIC program; in pass 2, use it for storing the addresses of each Text record
+int Program_Start_Address;                // record the start address of the SIC program
+int Program_Length;					      // record the total length of the SIC program
+char Obj_Head[10];                        // record the six bits length address which generates when calculating the head record
+char Obj_Operand[10];                     // record of each operand address when executing pass 2
+char Obj_Code[10];                        // record of each code of obj program
+int Obj_Length;                           // record the total text code length of each row
+
+char Buffer[MAX_Buffer];                  // use this array to store the input line of the input asm file (txt form)
+char Label[20];                           // use this array to store the label words
+char Opcode[20];                          // use this array to store the mnemonic of operations
+char Operand[20];                         // use this array to store the operands
+char EndLocation[20];                     // use this array to store the first executable instruction in the End record
+char temp[20];                            // the temporary array to some method parameter; ex: the char[] in "__itoa(int,char[],int)".
+
+int Calculate_BYTE_length(char *);        // the method to calculate the BYTE variable length
+char *Calculate_HeadRecord(char *);       // the method to compute then generate the head record
+char *Calculate_TextRecord(char *);       // the method to compute then generate the text record
+char *Calculate_Constant(char *,char *);  // the method to transfer the "BYTE" and "WORD" to constant notation
+
+/******************************************************************* Operator Hash Table *******************************************************************/
+typedef struct OP_Table         // the base structure of opcode hash table, stores Mnemonic, format, machine_code, and a pointer of linked list node      
+{       
+	string Mnemonic;       
+	int format;       
+	unsigned int machine_code; 
+	struct OP_Table *next;
+}SIC_OP_Table;      
+
+static SIC_OP_Table OPTAB[] =       
+{
+    { "ADD", 3, 0x18},   { "ADDF", 3, 0x58},   { "ADDR", 2, 0x90},   { "AND", 3, 0x40},  { "CLEAR", 2, 0xB4}, 
+    { "COMP", 3, 0x28},  { "COMPF", 3, 0x88},  { "COMPR", 2, 0xA0},  { "DIV", 1, 0x24},  { "DIVF", 1, 0x64}, 
+    { "DIVR", 1, 0x9C},  { "FIX", 3, 0xC4},    {"FLOAT", 3, 0xC0},   { "HIO", 3, 0xF4},  { "J", 3, 0x3C}, 
+    { "JEQ", 3, 0x30},   { "JGT", 3, 0x34},    { "JLT", 3, 0x38},    { "JSUB", 3, 0x48}, { "LDA", 3, 0x00}, 
+    { "LDB", 3, 0x68},   { "LDCH", 3, 0x50},   { "LDF", 3, 0x70},    { "LDL", 3, 0x08},  { "LDS", 3, 0x6C}, 
+    { "LDT", 3, 0x74},   { "LDX", 3, 0x04},    { "LPS", 3, 0xE0},    { "UML", 3, 0x20},  { "MULF", 3, 0x60}, 
+    { "MULR", 2, 0x98},  { "NORM", 1, 0xC8},   { "OR",  3, 0x44},    { "RD", 3, 0xD8},   { "RMO", 2, 0xAC}, 
+    { "RSUB", 3, 0x4C},  { "SHIFTL", 2, 0xA4}, { "SHIFTR", 2, 0xA8}, { "SIO", 1, 0xF0},  { "SSK", 3, 0xEC}, 
+    { "STA", 3, 0x0C},   { "STB", 3, 0x78},    { "STCH", 3, 0x54},   { "STF", 3, 0x80},  { "STI", 3, 0xD4}, 
+    { "STL", 3, 0x14},   { "STS", 3, 0x7C},    { "STSW", 3, 0xE8},   { "STT", 3, 0x84},  { "STX", 3, 0x10}, 
+    { "SUB", 3, 0x1C},   { "SUBF", 3, 0x5C},   { "SUBR", 2, 0x94},   { "SVC", 2, 0xB0},  { "TD", 3, 0xE0}, 
+    { "TIO", 1, 0xF8},   { "TIX", 3, 0x2C},    { "TIXR", 2, 0xB8},   { "WD", 3, 0xDC}  
+};   
+
+class OP_Hash                                             // use a hash table with linked list structure to store the static table of operation table
+{
+	private:
+		SIC_OP_Table *HashTab[MAX_Hash_OP];
+	public:
+        OP_Hash();
+        int hash_function(string);
+        void insert();
+        SIC_OP_Table *search(SIC_OP_Table *, SIC_OP_Table *);  
+        bool query(string); 
+        int querycode(string);
+};
+
+OP_Hash::OP_Hash()                                        // no argument constructor, to initial the hash table
+{
+	for(int i=0; i<MAX_Hash_OP ; i++ )
+	    HashTab[i] = NULL;
+}
+		
+int OP_Hash::hash_function(string key)                    // my hash function is : add the Ascii code of each characters of each Mnemonic, then mod 199
+{
+	int j = 0;
+	for(int i=0 ; i<key.length() ; i++ )
+	   	j += key[i];
+	return(j % Prime_Hash);
+}
+	
+void OP_Hash::insert()                                    // because my function is not a perfert function, there are about 10 collusions in insert
+{
+    int num_of_ops = sizeof(OPTAB)/sizeof(SIC_OP_Table);  // insert all mnemonic to the hash table
+    for(int i=0 ; i<num_of_ops ; i++ )
+	{
+        SIC_OP_Table *newnode;                            // construct a newnode which is used to insert the hash table to be substituted by the data from the static table
+        int index;
+	    newnode = new SIC_OP_Table;
+	    newnode->next = NULL;
+	    newnode->Mnemonic = OPTAB[i].Mnemonic;
+	    newnode->format = OPTAB[i].format;
+	    newnode->machine_code = OPTAB[i].machine_code;
+	    
+	    index = hash_function(newnode->Mnemonic);         // compute the index by hash function
+			
+	    if( HashTab[index] == NULL )                      // if the index place of the hash table is empty, then the newnode conquer the first node of the link 
+		    HashTab[index] = newnode;
+	    else
+	    {
+		    if( search(HashTab[index],newnode) != NULL )  // if after the searching, then we encounter a collusion, then get the returned collided node
+		    {
+			    newnode->next = HashTab[index];           // assign the newnode to be the headnode of the link
+			    HashTab[index] = newnode;
+		    }
+	    }
+    }
+}
+		
+SIC_OP_Table *OP_Hash::search(SIC_OP_Table *linklist, SIC_OP_Table *node)   
+{
+	SIC_OP_Table *ptr = linklist;
+	if( ptr == NULL )
+		return NULL;
+		
+	while( (ptr->next != NULL) && (ptr->Mnemonic != node->Mnemonic) )
+		   ptr = ptr->next;
+	return ptr;
+}
+		
+bool OP_Hash::query(string query_key)                     // this method is the whole segment to know whether the data we need exists or not
+{
+    SIC_OP_Table *query_node;
+    SIC_OP_Table *return_node;
+    int index;
+    query_node = new SIC_OP_Table;
+    query_node->Mnemonic = query_key;
+    index = hash_function(query_node->Mnemonic);
+    return_node = search(HashTab[index],query_node);
+    
+    if( return_node == NULL )                             // if no node was founded, the data we want is not exist
+        return false;
+    else if( (return_node != NULL) && (strcmp(return_node->Mnemonic.c_str(),query_node->Mnemonic.c_str()) != 0) )  // excludes the situlation that the value of key is the same, however in a wrong order
+         	 return false;
+		 else
+             return true;               
+}
+
+int OP_Hash::querycode(string query_key)                  // this method is the whole segment to know whether the data we need exists or not and return the machine code
+{
+    SIC_OP_Table *query_node;
+    SIC_OP_Table *return_node;
+    int index;
+    query_node = new SIC_OP_Table;
+    query_node->Mnemonic = query_key;
+    index = hash_function(query_node->Mnemonic);
+    return_node = search(HashTab[index],query_node);
+    
+    if( return_node == NULL )                             // if no node was founded, the data we want is not exist
+        return -1;
+    else if( (return_node != NULL) && (strcmp(return_node->Mnemonic.c_str(),query_node->Mnemonic.c_str()) != 0) )  // excludes the situlation that the value of key is the same, however in a wrong order
+         	 return -1;
+		 else
+             return return_node->machine_code;               
+}
+    /******************************************************************** Symbol Hash Table ********************************************************************/
+typedef struct SYM_Table       // the base structure of symbol hash table, stores name, type, length, address, and a pointer of linked list node 
+{       
+	string name;      
+	string type;
+	int length;
+	int address;  
+	struct SYM_Table *next;
+}SIC_SYM_Table;
+
+class SYM_Hash                                            // use a hash table with linked list structure to store the static table of operation table
+{
+	private:
+		SIC_SYM_Table *HashTab[MAX_Hash_SYM];
+	public:
+        SYM_Hash();
+        int hash_function(string);
+        void insert(string,int);
+        SIC_SYM_Table *search(SIC_SYM_Table *, SIC_SYM_Table *);  
+        bool query(string);  
+        int queryaddress(string); 
+        void show(); 
+        void output();
+};
+
+SYM_Hash::SYM_Hash()                                      // no argument constructor, to initial the hash table
+{
+	for(int i=0; i<MAX_Hash_SYM ; i++ )
+	    HashTab[i] = NULL;
+}
+		
+int SYM_Hash::hash_function(string key)                   // my hash function is : add the Ascii code of each characters of each Mnemonic, then mod 199
+{
+    int j = 0;
+	for(int i=0 ; i<key.length() ; i++ )
+	   	j += key[i];
+	return( MAX_Hash_SYM * sizeof(SIC_SYM_Table) % j );
+}
+		
+void SYM_Hash::insert(string temp,int LOCCTR)                        
+{
+    SIC_SYM_Table *newnode;                               // construct a newnode which is used to insert the hash table to be substituted by the data from the static table
+    int index; 
+	newnode = new SIC_SYM_Table;
+	newnode->next = NULL;
+	newnode->name = temp;
+	newnode->type = "Label";
+	newnode->length = temp.length();
+	newnode->address = LOCCTR;
+	
+	index = hash_function(newnode->name);
+	
+	if( HashTab[index] == NULL )						  // if the index place of the hash table is empty, then the newnode conquer the first node of the link 
+	{                        
+		HashTab[index] = newnode;	
+	}
+	else
+	{
+		if( search(HashTab[index],newnode) != NULL)       // if after the searching, we encounter a collusion, then get the returned collided node
+		{
+			newnode->next = HashTab[index];               // assign the newnode to be the headnode of the link
+			HashTab[index] = newnode;
+		}
+    }
+}
+		
+SIC_SYM_Table *SYM_Hash::search(SIC_SYM_Table *linklist, SIC_SYM_Table *node)   
+{
+	SIC_SYM_Table *ptr = linklist;
+	if( ptr == NULL )
+		return NULL;
+		
+	while( (ptr->next != NULL) && (ptr->name != node->name) )
+		   ptr = ptr->next;
+	return ptr;
+}
+		
+bool SYM_Hash::query(string query_key)                    // this method is the whole segment to know whether the data we need exists or not
+{
+    SIC_SYM_Table *query_node;
+    SIC_SYM_Table *return_node;
+    int index;
+    query_node = new SIC_SYM_Table;
+    query_node->name = query_key;
+    index = hash_function(query_node->name);
+    return_node = search(HashTab[index],query_node);
+  
+    if( return_node == NULL )                             // if no node was founded, the data we want is not exist
+        return false;
+    else if( (return_node != NULL) && ((strcmp(return_node->name.c_str(),query_node->name.c_str()) != 0)) )  // excludes the situlation that the value of key is the same, however in a wrong sequence
+             return false;
+         else
+             return true;               
+}
+
+int SYM_Hash::queryaddress(string query_key)              // this method is the whole segment to know whether the data we need exists or not and return the address
+{
+    SIC_SYM_Table *query_node;
+    SIC_SYM_Table *return_node;
+    int index;
+    query_node = new SIC_SYM_Table;
+    query_node->name = query_key;
+    index = hash_function(query_node->name);
+    return_node = search(HashTab[index],query_node);
+  
+    if( return_node == NULL )                             // if no node was founded, the data we want is not exist
+        return -1;
+    else if( (return_node != NULL) && ((strcmp(return_node->name.c_str(),query_node->name.c_str()) != 0)) )  // excludes the situlation that the value of key is the same, however in a wrong sequence
+             return -1;
+         else
+             return return_node->address;               
+}
+
+void SYM_Hash::show()                                     // method to show the elements of symbol table on the monitor
+{
+    SIC_SYM_Table *ptr;
+    puts("\n**********Symbol Table*********");
+    puts("Name	Type	Length	Address  ");
+    puts("--------------------------------");
+    for(int i=0 ; i<MAX_Hash_SYM ; i++ )
+    {
+        if( HashTab[i] != NULL )
+        {
+            ptr = HashTab[i];
+            while( ptr )
+            {
+                printf("%s\t%s\t%d\t%X\n", ptr->name.c_str(), ptr->type.c_str(), ptr->length, ptr->address);
+                ptr = ptr->next;  
+            } 
+        }     
+    }
+}
+
+void SYM_Hash::output()                                   // method to output the elements of symbol table to the file "Symbol Table.txt"
+{
+    SIC_SYM_Table *ptr;
+    FILE *fptr;
+    
+    fptr = fopen("Symbol Table.txt","w");
+    fputs("Name    Type    Length  Address \n",fptr);
+    fputs("--------------------------------\n",fptr);
+    for(int i=0 ; i<MAX_Hash_SYM ; i++ )
+    {
+        if( HashTab[i] != NULL )
+        {
+            ptr = HashTab[i];
+            while( ptr )
+            {
+                fprintf(fptr,"%s\t%s\t%d\t%X\n", ptr->name.c_str(), ptr->type.c_str(), ptr->length, ptr->address);
+                ptr = ptr->next;  
+            } 
+        }     
+    }
+    fclose(fptr);
+}
+
+	/********************************************************************** MAIN FUNCTION *********************************************************************/ 
+int main()
+{
+	FILE *fptr_input, *fptr_intermediate;    // the pointer of input file and the intermediate file
+    string filename;                         // the filename of input file and the parameter of the method "fopen"  
+    
+	while(true)
+	{
+		printf("Enter the SIC assembly language file name which you want to assembly: ");       
+		cin >> filename;     
+		fptr_input = fopen(filename.c_str(),"r");       
+		if( fptr_input == NULL )     
+			cout << filename << "is not found, please reenter the filename correctly." << endl;           
+		else
+			break;
+	}
+	/************************************************************************* PASS 1 *************************************************************************/ 
+	puts("Pass 1 Processing...");
+	
+	OP_Hash op_hashtable;
+	op_hashtable.insert();
+	
+	SYM_Hash sym_hashtable;
+    
+    int Index_line = 5;
+    bool first_instruction = true;
+    char InputLine[100], Sep[] = "\t\n";   
+    
+    // input first line
+    fgets(Buffer,MAX_Buffer,fptr_input);                 
+	strcpy(InputLine,Buffer);
+    strcpy(Label,strtok(InputLine,Sep));
+	strcpy(Opcode,strtok(NULL,Sep));
+	strcpy(Operand,strtok(NULL,Sep));
+	
+	if( strcmp(Opcode,"START") == 0 )                          // if OPCODE='START'
+    {       
+        char *str;                                             // a temp variable to be used when transforming Operand into Hexadecimal integer
+		Program_Start_Address = strtol(Operand,&str, 16); 
+		Program_Counter = Program_Start_Address;
+		
+        fptr_intermediate = fopen("intermediate.txt","w");
+        fprintf(fptr_intermediate, "%s\t%s\t%s\t%s\t%s\t\n", "Line", "LOC", "LABEL", "OPCODE", "OPERAND");
+        fprintf(fptr_intermediate, "%3d\t%X\t%s", Index_line, Program_Counter, Buffer); 
+		fclose(fptr_intermediate);
+		puts("\n**********Intermediate File*************");
+		printf("Line\tLOC\tLABEL\tOPCODE\tOPERAND\n");
+        printf("%3d\t%X\t%s", Index_line, Program_Counter, Buffer); 
+        
+        Index_line += 5;   
+    }       
+    else      
+    {       
+        Program_Counter = 0;       
+        Program_Start_Address = Program_Counter;
+        Index_line += 5;       
+    }       
+   
+    while( fgets(Buffer,MAX_Buffer,fptr_input) != NULL )       // input another lines
+    {
+		strcpy(InputLine,Buffer);
+        bool is_comment = false;
+    
+        if( InputLine[0] == '\t' )                             // if the inputline has no label
+        { 
+            char *isNULL;
+            strcpy(Label," ");                                 // set label = " "
+            strcpy(Opcode,strtok(InputLine,Sep));
+	        isNULL = strtok(NULL,Sep);
+            if( isNULL != NULL )                               // whether there is an operand
+                strcpy(Operand,isNULL);
+            else
+            {
+                strcpy(Opcode,strtok(Opcode,Sep));
+                strcpy(Operand,"\t");                          // set operand = "\t"
+            }
+        }
+        else if( InputLine[0] == '.' )
+                 is_comment = true;                            // if the line starts with ".", then ignore that because it's a comment
+             else
+             {        
+                 strcpy(Label,strtok(InputLine,Sep));          // spilt the inputline into three tokens 
+                 strcpy(Opcode,strtok(NULL,Sep));
+	             strcpy(Operand,strtok(NULL,Sep));
+             }
+            
+		if( !is_comment ) 
+		{
+            if( strcmp(Opcode,"END") != 0 )       
+            {       
+				if( Label[0] != ' ' )       
+                {       
+                    if( sym_hashtable.query(Label) == true )                 // duplicate symbol, show error and exit program 
+                    {       
+                        cout << "Lable: " << Label << endl; 
+                        puts("Error: Duplicate Symbol.");
+                        puts("Error line: ");
+			            cout << Index_line << "\t" << Buffer << endl;  
+                        puts("Program shut down...");
+                        system("pause");   
+                        exit(0);  
+                    }       
+                    else
+                    {
+                    	sym_hashtable.insert(Label,Program_Counter);           	 
+                    }
+				}
+				// search OPTAB for OPCODE
+				if( op_hashtable.query(Opcode) )                             // if found corresponding opcode, then add length 3 for a SIC instrution
+				{
+                    LOCCTR = Program_Counter;
+                    Program_Counter += 3;
+                }
+				else if( strcmp(Opcode,"WORD") == 0 )	      	             // if WORD	
+                     {	
+				         LOCCTR = Program_Counter;
+                         Program_Counter += 3;
+                     }
+                     else if( strcmp(Opcode,"RESW") == 0 )                   // if RESW	
+                          {			
+				              LOCCTR = Program_Counter;
+                              Program_Counter += 3*atoi(Operand);
+                          }
+                          else if( strcmp(Opcode,"RESB") == 0 )              // if RESB
+                               {
+                                   LOCCTR = Program_Counter;
+                                   Program_Counter += atoi(Operand);
+                               }
+                               else if( strcmp(Opcode,"BYTE") == 0 )         // if BYTE
+                                    {
+                                        LOCCTR = Program_Counter;
+                                        Program_Counter += Calculate_BYTE_length(Operand);
+                                    }
+                                    else                                     // no such Opcode, show error and exit program
+                                    {
+			                            puts("Error: Invalid Operation Code.");
+			                            puts("Error line: ");
+			                            cout << Index_line << "\t" << Buffer << endl;  
+			                            puts("Program shut down...");
+                                        system("pause");   
+                                        exit(0);
+		                            }
+                fptr_intermediate = fopen("intermediate.txt","a"); 
+                fprintf(fptr_intermediate, "%3d\t%X\t%s", Index_line, LOCCTR, Buffer); 
+	       	    fclose(fptr_intermediate);
+	       	    printf("%3d\t%X\t%s", Index_line, LOCCTR, Buffer); 
+	       	    Index_line += 5;
+            }
+            else       // if the Opcode is END
+            {
+                Program_Length = Program_Counter - Program_Start_Address;
+                fptr_intermediate = fopen("intermediate.txt","a");       
+                fprintf(fptr_intermediate, "%3d\t", Index_line);
+                fprintf(fptr_intermediate, "\t");
+                fputs(Buffer,fptr_intermediate);
+	       	    fclose(fptr_intermediate);   
+	       	    printf("%3d\t\t%s", Index_line, Buffer);
+            }
+        }
+        else           // if the input line is a comment, just write the line index and the comment
+        {
+            fptr_intermediate = fopen("intermediate.txt","a");       
+            fprintf(fptr_intermediate, "%3d\t\t", Index_line); 
+            fputs(InputLine,fptr_intermediate);
+	       	fclose(fptr_intermediate);
+	       	printf("%3d\t\t%s", Index_line, InputLine); 
+	       	Index_line += 5;
+        }
+	}
+
+	sym_hashtable.show();           // show the symbol table
+    sym_hashtable.output();         // output the symbol table to a file
+	puts("\nPass 1 Completed!");
+    fclose(fptr_input); 
+    
+    /************************************************************************* PASS 2 **************************************************************************/ 
+    
+    FILE *fptr_list, *fptr_obj;
+    char ObjLine[100], ObjText[100], ListLine[100], check_comment[100];
+     
+    puts("\nPass 2 Processing...");
+    fptr_intermediate = fopen("intermediate.txt","r");
+    fgets(Buffer,MAX_Buffer,fptr_intermediate);                               // ignore the head text
+    fptr_list = fopen("List File.txt","w");
+    fprintf(fptr_list, "%s\t%s\t%s\t%s\t%s\t\t%s\n", "Line", "LOC", "LABEL", "OPCODE", "OPERAND", "OBJCODE");
+    fclose(fptr_list);
+    puts("\n***********************List File***********************");
+    printf("Line\tLOC\tLABEL\tOPCODE\tOPERAND\t\tOBJCODE\n");
+
+    fgets(Buffer,MAX_Buffer,fptr_intermediate);                               // read first input line from the intermediate file
+    cout << Buffer;
+    strcpy(InputLine,Buffer);
+    strtok(InputLine,Sep);                                                    // ignore the line index
+    char *str;
+    Program_Counter = strtol(strtok(NULL,Sep),&str,16);                       // store the start address by decimal
+    Start_Address = Program_Counter;
+    strcpy(Label,strtok(NULL,Sep));
+	strcpy(Opcode,strtok(NULL,Sep));
+	strcpy(Operand,strtok(NULL,Sep));
+    fptr_list = fopen("List File.txt","a");
+    fputs(Buffer,fptr_list);                                                  // print the first line which contains START
+    fclose(fptr_list);
+	
+	if( strcmp(Opcode,"START") == 0 )
+    {
+        Calculate_HeadRecord(ObjLine);                                        // write Header record to the object program
+        fptr_obj = fopen("Object File.txt","w");
+        fputs(ObjLine,fptr_obj);
+        fclose(fptr_obj);
+        fgets(Buffer,MAX_Buffer,fptr_intermediate);                           // read next input line from the intermediate file
+        strcpy(InputLine,Buffer);
+        strtok(InputLine,Sep);
+        strcpy(check_comment,strtok(NULL,Sep));                               // ignore the line index, check whether it is a comment
+        strcpy(Label,strtok(NULL,Sep));
+	    strcpy(Opcode,strtok(NULL,Sep));
+	    strcpy(Operand,strtok(NULL,Sep));
+    }
+	
+	strcpy(ObjLine,"T");                                                      // initialize first Text record     
+	Calculate_TextRecord(ObjLine);                                            // call the method to calculate text record
+	
+	int Obj_Counter = 0;
+	int Reset_ObjCode = 0;
+	bool is_comment = false;
+	
+    while( strcmp(Opcode,"END") != 0 )                                        // while Opcode is not "END"
+    {
+        if( check_comment[0] == '.' )
+            is_comment = true;   
+       
+        if( !is_comment )
+        { 
+            if( op_hashtable.query(Opcode) )
+            {
+                if( strcmp(Operand,"\t") != 0 )                               // if there is a symbol in OPERAND FIELD
+                {
+                    if( strstr(Operand,",X") != NULL )                        // BUFFER,X 
+                    {
+                        char X_Operand[20];
+                        strcpy(X_Operand,Operand);
+						strcpy(X_Operand,strtok(X_Operand,","));
+						if( sym_hashtable.query(X_Operand) )
+						{
+                            char *str;
+                            _strupr(_itoa(sym_hashtable.queryaddress(X_Operand),temp,16));
+                            int X = strtol(temp,&str,16);                     // store the start address by decimal
+                            X += 32768;                                       // the first bit of the third byte in object code inveals the X address or not
+                            strcpy(Obj_Operand,_strupr(_itoa(X,temp,16)));
+                            Program_Counter += 3; 
+                        }
+                        else
+                        {
+						     strcpy(Obj_Operand,"000000");                    // store 0 as operand address
+						     puts("Error: Undefined Symbol.");                // error message
+                             puts("Error line: ");
+			                 cout << Index_line << "\t" << Buffer << endl;       
+                             puts("Program shut down...");
+                             system("pause");   
+                             exit(0);   
+					    }
+                    }
+                    else if( sym_hashtable.query(Operand) )
+                         {
+					         strcpy(Obj_Operand,_strupr(_itoa(sym_hashtable.queryaddress(Operand),temp,16)));
+					         Program_Counter += 3; 
+                         }
+                         else
+                         {
+						     strcpy(Obj_Operand,"000000");                    // store 0 as operand address
+						     puts("Error: Undefined Symbol.");                // error message
+                             puts("Error line: ");
+			                 cout << Index_line << "\t" << Buffer << endl;       
+                             puts("Program shut down...");
+                             system("pause");   
+                             exit(0);    
+					     }
+                }
+                else 
+                {
+                    strcpy(Obj_Operand,"0000");                               // store 0 as operand address
+					Program_Counter += 3; 
+                }
+                
+                int temp_code = op_hashtable.querycode(Opcode);               // some machine code of opcode is smaller than 16, we need to append a zero to the front
+                if( temp_code < 16 )
+                {
+                    char zero[] = "0";
+                    strcpy(Obj_Code,_strupr(_itoa(temp_code,temp,16)));
+                    strcpy(Obj_Code,strcat(zero,Obj_Code));
+                    strcat(Obj_Code,Obj_Operand);
+                }
+                else
+                {
+                    strcpy(Obj_Code,_strupr(_itoa(temp_code,temp,16)));
+                    strcat(Obj_Code,Obj_Operand);
+                }
+                Reset_ObjCode = 0;
+            }
+            else if( (strcmp(Opcode,"BYTE") == 0) )                          // if Opcode = "BYTE" 
+                 {
+                     Program_Counter += Calculate_BYTE_length(Operand);
+                     Calculate_Constant(Obj_Code,Operand);  
+                     Reset_ObjCode = 0;
+                 }
+                 else if( (strcmp(Opcode,"WORD") == 0) )                     // if Opcode = "WORD"
+                      {
+                          Program_Counter += 3;
+                          Calculate_Constant(Obj_Code,Operand);      
+                          Reset_ObjCode = 0;       
+                      }
+                      else if( strcmp(Opcode,"RESW") == 0 )                  // special case - if we encounter "RESW" or "RESB", the text record must renew  
+                           {
+                               Program_Counter += 3*atoi(Operand);
+                               Reset_ObjCode++; 
+                           }
+                           else if( strcmp(Opcode,"RESB") == 0 )
+                                {
+                                    Program_Counter += atoi(Operand);
+                                    Reset_ObjCode++;     
+                                }
+			 
+            if( (strcmp(Opcode,"RESW") == 0) || (strcmp(Opcode,"RESB") == 0) )
+            {
+				// do nothing
+			}
+            else 
+            {
+                if( Obj_Counter == 0 )      
+				    strcpy(ObjText,Obj_Code);
+				else
+				    strcat(ObjText,Obj_Code); 
+                Obj_Counter++;
+            }
+            
+            if( Obj_Counter == 10 )                                     // when counter counts to 10, it means the begining of next text record( column 10 ~ 69 have been occupied).
+            {           
+                Start_Address = Program_Counter;              
+				Obj_Length = strlen(ObjText) / 2;
+				
+                if( Obj_Length < 16 )
+					strcat(ObjLine,"0");
+				
+				strcat(ObjLine,_strupr(_itoa(Obj_Length,temp,16)));     // the ninth and tenth column records the length of all text code in the same row,  
+				strcat(ObjLine,ObjText);                                
+				strcat(ObjLine,"\n");
+				
+				fptr_obj = fopen("Object File.txt","a");
+                fputs(ObjLine,fptr_obj);                                // write text record to object program
+			    fclose(fptr_obj);
+			    
+				strcpy(ObjLine,"T");                                    // initialize new Text record
+				Calculate_TextRecord(ObjLine);                          // call the method to calculate text record
+				
+				Obj_Counter = 0;                                        // reset counter
+			}
+			else if( Reset_ObjCode == 1 )
+			     {
+                     Start_Address = Program_Counter;     
+				     Obj_Length = strlen(ObjText) / 2;
+				     
+                     if( Obj_Length < 16 && ObjText[0] != ' ' && Obj_Length > 0 )
+					 strcat(ObjLine,"0");
+				
+				     strcat(ObjLine,_strupr(_itoa(Obj_Length,temp,16))); // the ninth and tenth column records the length of all text code in the same row,  
+				     strcat(ObjLine,ObjText);                                
+				     strcat(ObjLine,"\n");
+		
+				     fptr_obj = fopen("Object File.txt","a");
+                     fputs(ObjLine,fptr_obj);                            // write text record to object program
+			         fclose(fptr_obj);
+			
+				     Obj_Counter = 0;                                    // reset counter   
+                 }
+                 else if( Reset_ObjCode > 1 )
+                      {
+                          Start_Address = Program_Counter;     
+				          Obj_Counter = 0;                               // reset counter     
+                      }
+			
+			strcpy(ListLine,Buffer);
+            ListLine[strlen(ListLine)-1] = '\0';                         // write listing line, substitute the last character "\n" to '\0'
+			if( strcmp(Obj_Code,"\t") != 0 )
+            {
+				if( strcmp(Operand,"\t") == 0 )
+					strcat(ListLine,"\t\t");                             // ex: "<\t>RSUB<\t><\t><\t><CODE>"
+				else if( strstr(Operand,",X") != NULL )                  
+				     {
+                        strcat(ListLine,"\t");
+                     }
+					 else
+                         strcat(ListLine,"\t\t");
+					
+				if( strcmp(Opcode,"RESW") == 0 || strcmp(Opcode,"RESB") == 0 )
+                	 strcat(ListLine,"\t");
+				else
+                    strcat(ListLine,Obj_Code);
+                    
+				strcat(ListLine,"\n");
+				cout << ListLine;
+			}
+			
+			fptr_list = fopen("List File.txt","a");
+		    fputs(ListLine,fptr_list);
+		    fclose(fptr_list);
+        }
+        else
+        {
+            fptr_list = fopen("List File.txt","a");       
+            fputs(Buffer,fptr_list);
+	       	fclose(fptr_list);
+        }
+        
+        // read next input line
+        is_comment = false;
+        fgets(Buffer,MAX_Buffer,fptr_intermediate);                 
+		strcpy(InputLine,Buffer);
+		strtok(InputLine,Sep);                                      // ignore the line index
+		strcpy(check_comment,strtok(NULL,Sep));                     // check whether it is a comment
+		    
+        if( check_comment[0] == '.' )
+            is_comment = true;  
+        
+		if( !is_comment )
+        {
+			if( strcmp(check_comment,"END") == 0 )                  // if the spilt token is "END", write last listing line
+            {
+                strcpy(Opcode,"END");                               // set END as Opcode, then exit the while loop 
+				strcpy(Operand,strtok(NULL,Sep));
+				strcpy(Label," ");                                  // set Label as " "
+				fptr_list = fopen("List File.txt","a");
+		        fputs(Buffer,fptr_list);                            // END line has no object code, just print the opcode and the operand
+		        fclose(fptr_list);
+		        cout << Buffer << endl;
+		        
+		        // write last Text record to object program             
+		        Start_Address = Program_Counter;              
+				Obj_Length = strlen(ObjText) / 2;
+				
+                if( Obj_Length < 16 )
+				    strcat(ObjLine,"0");
+		        
+		        fptr_obj = fopen("Object File.txt","a");
+                strcat(ObjLine,_strupr(_itoa(Obj_Length,temp,16))); // the ninth and tenth column records the length of all text code in the same row,  
+				strcat(ObjLine,ObjText);                                
+				strcat(ObjLine,"\n");
+				fputs(ObjLine,fptr_obj);
+				fclose(fptr_obj);
+			}
+            else
+            {
+                strcpy(temp,strtok(NULL,Sep));                      // get the Label or the Opcode 
+				char *isNULL;
+                if( sym_hashtable.query(temp) )                     // if it can be found in the symbol table, then it is a label
+				{
+                    strcpy(Label,temp);
+                    strcpy(Opcode,strtok(NULL,Sep));
+                    isNULL = strtok(NULL,Sep);                      // whether there is an operand
+                    if( isNULL != NULL )                            // yes, there exists operand
+					    strcpy(Operand,isNULL);
+                    else
+                        strcpy(Operand,"\t");
+                          
+                    if( (strcmp(Opcode,"RESW") == 0) || (strcmp(Opcode,"RESB") == 0) )
+                    {
+                        // do nothing, the line associated with both of them need not object code
+                    }
+                    else
+                    {
+                        strcpy(ObjLine,"T");                        // initialize new Text record
+				        Calculate_TextRecord(ObjLine);              // call the method to calculate text record
+                    }
+                }
+                else                                                // if it is an opcode
+                {
+				    strcpy(Label," ");
+                    strcpy(Opcode,temp);
+                    isNULL = strtok(NULL,Sep);                      // whether there is an operand
+				    if( isNULL != NULL )                            // yes, there exists operand
+					    strcpy(Operand,isNULL);
+                    else
+                        strcpy(Operand,"\t");
+  
+                    strcpy(ObjLine,"T");                            // initialize new Text record
+				    Calculate_TextRecord(ObjLine);                  // call the method to calculate text record
+                }
+			}
+        }
+    }
+    
+    fptr_obj = fopen("Object File.txt","a");                        // write the END record to object program
+    strcpy(ObjLine,"E");                        
+	strcat(ObjLine,EndLocation);
+	strcat(ObjLine,"\n");
+	fputs(ObjLine,fptr_obj);
+	fclose(fptr_obj);
+	
+    puts("Pass 2 Completed!");
+    fclose(fptr_intermediate);
+   
+system("pause");
+return 0;
+}
+
+char *Calculate_HeadRecord(char *ObjLine)                          // compute the contents of Head Record  
+{
+    int num_space = 0;
+	
+    strcpy(ObjLine,"H");                                           // start with "H"
+	strcat(ObjLine,Label);                                         // then the first Label
+	
+	num_space = 6 - strlen(Label);                                 // column 2-7 stores the program name, it is total length of six.
+	for(int i = 1 ; i <= num_space ; i++ ) 
+        strcat(ObjLine," "); 
+
+	strcpy(temp,_strupr(_itoa(Program_Start_Address,temp,16)));    // start_address of the sic program
+    num_space = 6 - strlen(temp);                                  // sometimes the start address is no 00XXXX, it may 0XXXXX, so just append "00" to the front is not reasonable
+    for(int i = 1 ; i <= num_space ; i++ )
+	{
+        char zero[10];
+		strcpy(zero, "0");
+		strcat(zero,temp);
+		strcpy(temp, zero);
+    }
+    strcpy(Obj_Head,temp);
+	strcat(ObjLine,temp);
+    strcpy(EndLocation,Obj_Head);
+	 	
+	strcpy(temp,_strupr(_itoa(Program_Length,temp,16)));
+    num_space = 6 - strlen(temp);
+    for(int i = 1 ; i <= num_space ; i++ )
+		strcat(ObjLine,"0");
+	
+    strcat(ObjLine,temp);            
+    strcat(ObjLine,"\n");
+    
+    return ObjLine;
+}
+
+char *Calculate_TextRecord(char *ObjLine)                          // compute the contents of Text Record
+{
+    int num_space = 0;
+	
+    strcpy(temp,_strupr(_itoa(Start_Address,temp,16)));            // start_address of obj program
+    num_space = 6 - strlen(temp);
+    for(int i = 1 ; i <= num_space ; i++ )
+	{
+        char zero[10];
+		strcpy(zero,"0");
+		strcat(zero,temp);
+		strcpy(temp,zero);
+    }
+	strcat(ObjLine,temp);
+	
+    return ObjLine;
+}
+
+int Calculate_BYTE_length(char *BYTE)                              // compute the length of constants in BYTE
+{
+	int length = 0;
+	char Temp[10], byte[20];
+	strcpy(byte,BYTE);
+	strtok(byte,"\'");
+	strcpy(Temp,strtok(NULL,"\'"));
+	
+	if( byte[0] == 'C' )                                           // C'EOF: EOF costs 3 bytes
+	    length = (int)(strlen(Temp)*1);     
+    if( byte[0] == 'X' )                                           // X'0F: 0F costs 1 byte, it is represented as 00001111 in binary, thus just one byte 
+		length = (int)(strlen(Temp)/2);
+	return length;
+}
+
+char *Calculate_Constant(char *Obj_Code,char *Operand)             // compute the object code of constants in BYTE or WORD
+{
+    char Temp[10];
+    
+    if( Operand[0] == 'C' )      
+    {
+        strcpy(Temp,Operand);
+		strtok(Temp,"\'");                                         // C'EOF' -> EOF'
+		strcpy(Temp,strtok(NULL,"\'"));                            // EOF' -> EOF
+		
+        int length = strlen(Temp);
+		for(int i = 0 ; i<length ; i++ )
+        {
+            int ascii = Temp[i];
+			_itoa(ascii,temp,16);
+			if( i == 0 )
+				_strupr(strcpy(Obj_Code,temp));
+            else
+				_strupr(strcat(Obj_Code,temp));
+        }
+		return Obj_Code;
+    }              
+    
+    if( Operand[0] == 'X' ) 
+    {
+        strcpy(Temp,Operand);
+		strtok(Temp,"\'");
+		strcpy(Temp,strtok(NULL,"\'"));
+        _strupr(strcpy(Obj_Code,Temp));
+        
+        return Obj_Code;
+    }            
+    
+    strcpy(Temp,_strupr(_itoa(atoi(Operand),Temp,16)));            // transform an integer -> atoi(Operand) to a hexadecimal string 
+	int num_zero = 6 - strlen(Temp);
+	if( num_zero > 0 )
+    {
+	   strcpy(Obj_Code,"0");
+	   for(int i = 1 ; i <= num_zero-1 ; i++ )
+	       strcat(Obj_Code,"0");
+	   strcat(Obj_Code,Temp);
+	}
+    return Obj_Code;
+}
