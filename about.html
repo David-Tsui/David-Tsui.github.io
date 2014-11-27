@@ -8,11 +8,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+	<link rel="shortcut icon" href="http://s101056044-html5.lionfree.net/ico/gift.ico" />
 	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 	
 	<script>
 	$(document).ready(function(){
 			nav_to_white();
+
+			$("#all_black").click(function(){
+				$('#sheild').hide();
+				$(".container-fluid").hide();
+				$('body').css('background-color','#000');
+				$div = $("<div class='container'><div class='row' style='text-align: center'><div id='push'></div><div id='push'></div><div id='push'></div><div id='push'></div><div id='push'></div><div class='col-xs-12 col-sm-4 col-md-4'></div><div class='col-xs-12 col-sm-4 col-md-4'><button type='button' class='btn btn-default' id='cancel_black' style='color: #000; font-size: 20px'>取消國防布</button></div><div class='col-xs-12 col-sm-4 col-md-4'></div></div></div>");
+				$('body').append($div);
+
+				$("#cancel_black").on('click',function(){
+					$('#sheild').show();
+					$(".container-fluid").show();
+					$('body').css('background-color','#FFB5CE');
+					$div.remove();
+				}).on('mouseenter',function(){
+					$(this).animate({
+				      	opacity:'0.3',
+				      	height:'+=10px',
+				      	width:'+=15px'
+				    });
+					
+				});
+			});
 
 			function nav_to_white(){										// 讓上方的navbar的元素有白色跑馬燈特效
 				var head_arr = ["#home","#about","#contact","#login","#info"];
@@ -56,61 +79,81 @@
 
 <style>
 	html, body, .container-fluid{
-	    height: 100%;
-	    min-height:99%;
+	    height: 96%;
+	    min-height: 95%;
 	}
 
 	body{ 
 		padding-top: 70px; 
-		font-family:\5FAE\8EDF\6B63\9ED1\9AD4,Microsoft JhengHei,MingLiU,sans-serif; 
+		background-color: #FFB5CE;
+		font-family: Arial, "文泉驛正黑", "WenQuanYi Zen Hei", "微軟正黑體", "Microsoft JhengHei", "標楷體", DFKai-SB, sans-serif;
+	}
+
+	#push{
+		height: 100px;
+	}
+
+	#pushl{
+		height: 150px;
+	}
+
+	#pushs{
+		height: 40px;
+	}
+
+	#pusht{
+		height: 20px;
 	}
 	
 </style>
 
 <body>
+	<div id="shield">
 	<nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#"><strong>國防布</strong></a>
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a id="all_black" class="navbar-brand" href="#"><strong>國防布</strong></a>
+				</div>
+				<div id="navbarCollapse" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+	                    <li>
+	                    	<a href="index.html" id="home"><span class="glyphicon glyphicon-home"></span> 首頁</a>
+	                    </li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="about.html" id="about"><span class="glyphicon glyphicon-info-sign"></span> 關於我</a>
+						</li>
+	                 
+	                    <li>
+	                    	<a href="#contact" id="contact"><span class="glyphicon glyphicon-envelope"></span> 聯絡我</a>
+	                    </li>
+	                    <li>
+	                    	<a href="http://speechlab.cs.nchu.edu.tw/nchu-tw-pinyin/" id="login"><span class="glyphicon glyphicon-user"></span> 作品欣賞</a>
+	                    </li>
+	                    <li>
+	                    	<a href="#" id="info"><span class="glyphicon glyphicon-heart"></span> 關於本站</a>
+	                    </li>
+					</ul>
+				</div>
 			</div>
-			<div id="navbarCollapse" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav">
-                    <li>
-                    	<a href="index.html" id="home"><span class="glyphicon glyphicon-home"></span> 首頁</a>
-                    </li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li>
-						<a href="about.html" id="about"><span class="glyphicon glyphicon-info-sign"></span> 關於我</a>
-					</li>
-                 
-                    <li>
-                    	<a href="#contact" id="contact"><span class="glyphicon glyphicon-envelope"></span> 聯絡我</a>
-                    </li>
-                    <li>
-                    	<a href="http://speechlab.cs.nchu.edu.tw/nchu-tw-pinyin/" id="login"><span class="glyphicon glyphicon-user"></span> 作品欣賞</a>
-                    </li>
-                    <li>
-                    	<a href="#" id="info"><span class="glyphicon glyphicon-heart"></span> 關於本站</a>
-                    </li>
-				</ul>
-			</div>
-		</div>
-	</nav>
-
+		</nav>
+	</div>
 	<div class="container-fluid">
+		<div id="pusht"></div>
 		<div id="timeline"></div>
+		<br>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript">
+    <script>
 	    var timeline_config = {
 	        width:              '100%',
 	        height:             '100%',
@@ -158,6 +201,5 @@
 						 sans-serif
 		}
 	</style>
-
 </body>
 </html>
