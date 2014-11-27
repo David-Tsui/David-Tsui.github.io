@@ -7,19 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap-theme.min.css">
-	<link rel="shortcut icon" href="http://s101056044-html5.lionfree.net/ico/gift.ico" />
+	<link rel="stylesheet" href="http://s101056044-html5.lionfree.net/semantic/css/semantic.css">
+	<link rel="stylesheet" href="http://goooooooogle.github.io/kp/src/kptalks-v2.css">
+	<link rel="stylesheet" href="http://s101056044-html5.lionfree.net/css/jquery-letterfx.css"></link>
+	<link rel="shortcut icon" href="http://s101056044-html5.lionfree.net/ico/gift.ico">
 	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-
-	</script>
-
+	
 	<script>
 		var Eason_videos = ['NXXEjiiaNEs','0lhfgaZ-gLY','J8RJFTgZAak','9g3XXXdnjqY','d5rsn0Yl0Ns'];
 		var Notre_videos = ['sYkgo7wVjaQ','MCprmXOuQf4','qT6Mpkj9Y8Q','4jga-qRzZmE','-slvDgsgixE'];
 		var Eason_btns = ['#Eason_btn1','#Eason_btn2','#Eason_btn3','#Eason_btn4','#Eason_btn5'];
 		var Notre_btns = ['#Notre_btn1','#Notre_btn2','#Notre_btn3','#Notre_btn4','#Notre_btn5'];
+		var pop = ['default', 'fast', 'slow', 'veryslow', 'jump', 'sneaky'];
+		var from = ['left','right'];
+		var cats = ['http://s101056044-html5.lionfree.net/pic/cat-black.png','http://s101056044-html5.lionfree.net/pic/cat-gray.png','http://s101056044-html5.lionfree.net/pic/cat-yellow.png']
 
 		$(document).ready(function(){
 			nav_to_white();
+			//$(".tagline").letterfx({"fx":"fly-right fly-bottom spin"});
+			$.kptalks({
+			    image: cats[Math.floor(Math.random() * 3)],
+			    width: 256,
+			    height: 256,
+			    effect: pop[Math.floor(Math.random() * 6)],
+			    enter_from: from[Math.floor(Math.random() * 2)],
+			    enter_distance: 90,
+			});
+
 			$("#all_black").click(function(){
 				$('#sheild').hide();
 				$('body').css('background-color','#000');
@@ -176,45 +190,32 @@
 				</div>
 			</nav>
 			<div id="push"></div>
-
 			<div class="container">
-				<div class="row" style="background-color: #B2D1FF; text-align: center; border-radius: 25px">
-					<div class="col-xs-12 col-sm-5 col-md-5">
-						<div id="pushs"></div>
-						<div id="pushs"></div>
-						<div class="col-xs-1"><p style="font-size: 60px">看</p></div>
-						<div class="col-xs-1 col-xs-offset-2"><p style="font-size: 60px">破</p></div>
-						<div class="col-xs-1 col-xs-offset-2"><p style="font-size: 60px">紅</p></div>
-						<div class="col-xs-1 col-xs-offset-2"><p style="font-size: 60px">塵</p></div>
-						<div id="push"></div>
-					</div>
-					<div class="col-xs-12 col-sm-2 col-md-2">
-						<div id="pushs"></div>
-						<div id="pushs"></div>
-						<p style="font-size: 60px">，</p>
-					</div>
-					<div class="col-xs-12 col-sm-5 col-md-5">
-						<div id="pushs"></div>
-						<div id="pushs"></div>
-						<div class="col-xs-1"><p style="font-size: 60px">自</p></div>
-						<div class="col-xs-1 col-xs-offset-2"><p style="font-size: 60px">是</p></div>
-						<div class="col-xs-1 col-xs-offset-2"><p style="font-size: 60px">浮</p></div>
-						<div class="col-xs-1 col-xs-offset-2"><p style="font-size: 60px">誇</p></div>
-						<div id="push"></div>
-						<div id="pushs"></div>
+				<div class="row" style="border-style: inset; background-color: #B2D1FF; text-align: center; border-radius: 25px">
+					<div id="pusht"></div>
+					<div class="col-xs-12 col-sm-6 col-md-6">
 						<div id="pusht"></div>
+						<p style="font-size: 72px">
+							&nbsp;仙&nbsp;落&nbsp;紅&nbsp;塵&nbsp;
+						</p>
 					</div>
-					<div id="push"></div>
+					<div class="col-xs-12 col-sm-6 col-md-6">
+						<div id="pusht"></div>
+						<p style="font-size: 72px">
+							&nbsp;自&nbsp;是&nbsp;浮&nbsp;誇&nbsp;
+						</p>
+					</div>
 					<div id="push"></div>
 					<div id="pushs"></div>
+					<div id="pusht"></div>
 				</div>
 
 				<br><br>
 				<div class="row" style="text-align: center">
 					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="jumbotron" style="border-radius: 30px">
+						<div class="jumbotron" style="border-style: outset; border-radius: 30px; border-width: 10px">
 							<span class="glyphicon glyphicon-chevron-up" aria-hidden="true" style="font-size: 32px; margin-top: -25px"></span>
-							<br>
+							<br><br>
 							<div id="Eason_video">
 								<iframe src="http://www.youtube.com/embed/J8RJFTgZAak" style="width: 100%; height: 320px;" frameborder="0" allowfullscreen></iframe>
 							</div>
@@ -229,9 +230,9 @@
 						</div>
 					</div>
 					<div class="col-xs-12 col-sm-6 col-md-6">
-						<div class="jumbotron" style="border-radius: 30px">
+						<div class="jumbotron" style="border-style: outset; border-radius: 30px; border-width: 10px">
 							<span class="glyphicon glyphicon-chevron-up" aria-hidden="true" style="font-size: 32px; margin-top: -25px"></span>
-							<br>
+							<br><br>
 							<div id="Notre_video">
 								<iframe src="http://www.youtube.com/embed/qT6Mpkj9Y8Q" style="width: 100%; height: 320px;" frameborder="0" allowfullscreen></iframe>
 							</div>
@@ -252,6 +253,12 @@
 						<br><br>
 						<p><span class="glyphicon glyphicon-leaf"></span> 但願人長久，千里共嬋娟 <span class="glyphicon glyphicon-leaf"></span></p>
 						<br>
+						<img src="http://i.imgur.com/ctxbdTP.jpg" style="width: 80%"/>
+					</div>
+					<div class="col-xs-12 col-sm-4 col-md-4">
+						<br><br>
+						<p><span class="glyphicon glyphicon-tint"></span> 松下問童子，言師採藥去 <span class="glyphicon glyphicon-tint"></span></p>
+						<br>
 						<table class="table table-hover table-bordered" style="margin-left: 35px; width: 80%">
 							<tr>
 								<td>身高</td>
@@ -270,12 +277,6 @@
 					</div>
 					<div class="col-xs-12 col-sm-4 col-md-4">
 						<br><br>
-						<p><span class="glyphicon glyphicon-tint"></span> 松下問童子，言師採藥去 <span class="glyphicon glyphicon-tint"></span></p>
-						<br>
-						<img src="http://i.imgur.com/ctxbdTP.jpg" style="width: 80%"/>
-					</div>
-					<div class="col-xs-12 col-sm-4 col-md-4">
-						<br><br>
 						<p><span class="glyphicon glyphicon-remove-sign"></span> 孤舟簑笠翁，喵喵喵喵喵 <span class="glyphicon glyphicon-remove-sign"></span></p>
 
 						<img src="http://i.imgur.com/8479yhS.jpg" class="img-circle" alt="Circular Image" style="width: 80%"/>
@@ -284,6 +285,9 @@
 			</div>	
 		</div>
 		
+	    <script src="http://s101056044-html5.lionfree.net/semantic/javascript/semantic.js"></script>
 	    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+	    <script src="http://s101056044-html5.lionfree.net/js/kptalks-v2.js"></script>
+	    <script src="http://s101056044-html5.lionfree.net/js/jquery-letterfx.js"></script>
 	</body>
 </html>
