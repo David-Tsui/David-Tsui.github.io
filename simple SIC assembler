@@ -104,7 +104,7 @@ int OP_Hash::hash_function(string key)                    // my hash function is
 	return(j % Prime_Hash);
 }
 
-void OP_Hash::insert()                                    // because my function is not a perfert function, there are about 10 collusions in insert
+void OP_Hash::insert()                                    // because my function is not a perfect function, there are about 10 collisions in insert
 {
     int num_of_ops = sizeof(OPTAB)/sizeof(SIC_OP_Table);  // insert all mnemonic to the hash table
     for(int i=0 ; i<num_of_ops ; i++ )
@@ -155,7 +155,7 @@ bool OP_Hash::query(string query_key)                     // this method is the 
 
     if( return_node == NULL )                             // if no node was founded, the data we want is not exist
         return false;
-    else if( (return_node != NULL) && (strcmp(return_node->Mnemonic.c_str(),query_node->Mnemonic.c_str()) != 0) )  // excludes the situlation that the value of key is the same, however in a wrong order
+    else if( (return_node != NULL) && (strcmp(return_node->Mnemonic.c_str(),query_node->Mnemonic.c_str()) != 0) )  // excludes the situation that the value of key is the same, however in a wrong order
          	 return false;
 		 else
              return true;
@@ -173,7 +173,7 @@ int OP_Hash::querycode(string query_key)                  // this method is the 
 
     if( return_node == NULL )                             // if no node was founded, the data we want is not exist
         return -1;
-    else if( (return_node != NULL) && (strcmp(return_node->Mnemonic.c_str(),query_node->Mnemonic.c_str()) != 0) )  // excludes the situlation that the value of key is the same, however in a wrong order
+    else if( (return_node != NULL) && (strcmp(return_node->Mnemonic.c_str(),query_node->Mnemonic.c_str()) != 0) )  // excludes the situation that the value of key is the same, however in a wrong order
          	 return -1;
 		 else
              return return_node->machine_code;
@@ -267,7 +267,7 @@ bool SYM_Hash::query(string query_key)                    // this method is the 
 
     if( return_node == NULL )                             // if no node was founded, the data we want is not exist
         return false;
-    else if( (return_node != NULL) && ((strcmp(return_node->name.c_str(),query_node->name.c_str()) != 0)) )  // excludes the situlation that the value of key is the same, however in a wrong sequence
+    else if( (return_node != NULL) && ((strcmp(return_node->name.c_str(),query_node->name.c_str()) != 0)) )  // excludes the situation that the value of key is the same, however in a wrong sequence
              return false;
          else
              return true;
@@ -285,7 +285,7 @@ int SYM_Hash::queryaddress(string query_key)              // this method is the 
 
     if( return_node == NULL )                             // if no node was founded, the data we want is not exist
         return -1;
-    else if( (return_node != NULL) && ((strcmp(return_node->name.c_str(),query_node->name.c_str()) != 0)) )  // excludes the situlation that the value of key is the same, however in a wrong sequence
+    else if( (return_node != NULL) && ((strcmp(return_node->name.c_str(),query_node->name.c_str()) != 0)) )  // excludes the situation that the value of key is the same, however in a wrong sequence
              return -1;
          else
              return return_node->address;
